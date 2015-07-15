@@ -855,7 +855,7 @@ begin : _MUX_MEM_
   if(valid_R_HP & grant_R_HP)
   begin
     HP_cen   = HP_R_cen   ;
-    HP_wen   = HP_R_wen   ;
+    HP_wen   = 1'b1       ;
     HP_addr  = HP_R_addr  ;
     HP_wdata = HP_R_wdata ;
     HP_be    = HP_R_be    ;
@@ -863,17 +863,17 @@ begin : _MUX_MEM_
   else
   begin
     HP_cen   = HP_W_cen   ;
-    HP_wen   = HP_W_wen   ;
+    HP_wen   = 1'b0       ;
     HP_addr  = HP_W_addr  ;
     HP_wdata = HP_W_wdata ;
     HP_be    = HP_W_be    ;
   end
 
 
-  if(valid_R_HP & grant_R_HP)
+  if(valid_R_LP & grant_R_LP)
   begin
     LP_cen   = LP_R_cen   ;
-    LP_wen   = LP_R_wen   ;
+    LP_wen   = 1'b1       ;
     LP_addr  = LP_R_addr  ;
     LP_wdata = LP_R_wdata ;
     LP_be    = LP_R_be    ;
@@ -881,7 +881,7 @@ begin : _MUX_MEM_
   else
   begin
     LP_cen   = LP_W_cen   ;
-    LP_wen   = LP_W_wen   ;
+    LP_wen   = 1'b0       ;
     LP_addr  = LP_W_addr  ;
     LP_wdata = LP_W_wdata ;
     LP_be    = LP_W_be    ;

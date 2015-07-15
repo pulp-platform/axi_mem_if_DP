@@ -104,19 +104,23 @@ module axi_write_only_ctrl
                 AWLEN_REG   <= AWLEN_i;
             end
 
-            if(sample_backward)
-            begin
-                BUSER_o = AWUSER_REG;
-                BID_o   = AWID_REG;
-            end
+            // if(sample_backward)
+            // begin
+            //     BUSER_o = AWUSER_REG;
+            //     BID_o   = AWID_REG;
+            // end
 
     	end
     end
 
+    assign BUSER_o =  AWUSER_REG;
+    assign BID_o   =  AWID_REG;
 
     always_comb 
     begin : COMPUTE_NS
         sample_ctrl = 1'b0;
+        //sample_backward = 1'b0;
+
         valid_o   = 1'b0;
         AWREADY_o = 1'b0;
         WREADY_o  = 1'b0;
@@ -145,7 +149,7 @@ module axi_write_only_ctrl
                 begin
                         valid_o = WVALID_i;
                         MEM_CEN_o = ~WVALID_i;
-
+                        MEM_A_o   = AWADDR_i[MEM_ADDR_WIDTH+OFFSET_BIT-1 : OFFSET_BIT];
    
                         WREADY_o = grant_i;
 
@@ -186,6 +190,7 @@ module axi_write_only_ctrl
                 WREADY_o  = grant_i;
                 valid_o   = WVALID_i;
                 MEM_CEN_o = ~(WVALID_i & grant_i);
+                MEM_A_o   = AWADDR_REG;
 
 
 
@@ -200,7 +205,7 @@ module axi_write_only_ctrl
                     begin // WRITE!!!!
                         NS = BURST;
                         CountBurst_NS = CountBurst_CS + 1;
-                        MEM_A_o   = AWID_REG + CountBurst_CS;
+                        MEM_A_o   = AWADDR_REG + CountBurst_CS;
                     end
 
                 end
@@ -227,6 +232,7 @@ module axi_write_only_ctrl
                         begin
                                 valid_o = WVALID_i;
                                 MEM_CEN_o = ~WVALID_i;
+                                MEM_A_o   = AWADDR_i[MEM_ADDR_WIDTH+OFFSET_BIT-1 : OFFSET_BIT];
 
 
                                 WREADY_o = grant_i;
@@ -281,7 +287,7 @@ module axi_write_only_ctrl
                    MEM_CEN_o = ~(WVALID_i & grant_i);
                    valid_o   = 1'b1;
 
-                   MEM_A_o   = AWID_REG + CountBurst_CS;
+                   MEM_A_o   = AWADDR_REG + CountBurst_CS;
                    
 
                     if(WVALID_i & grant_i)

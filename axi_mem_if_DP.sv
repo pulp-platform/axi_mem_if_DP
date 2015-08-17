@@ -944,7 +944,7 @@ begin
   end 
   else 
   begin
-      RR_FLAG_LP  <= ~RR_FLAG_HP;
+      RR_FLAG_LP  <= ~RR_FLAG_LP;
   end
 end
 

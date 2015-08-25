@@ -69,7 +69,8 @@ module axi_read_only_ctrl
     logic [MEM_ADDR_WIDTH-1:0]                        ARADDR_REG;
     logic [7:0]                                       ARLEN_REG;
 
-
+    assign MEM_D_o = '0;
+    assign MEM_BE_o = '0;
 
 
     always_ff @(posedge clk or negedge rst_n) 

@@ -18,6 +18,7 @@ module axi_mem_if_DP_hybr
 (
     input logic                                     ACLK,
     input logic                                     ARESETn,
+    input logic                                     test_en_i,
 
     // ------------------------------------------------------------//
     // ██╗      ██████╗ ██╗    ██╗    ██████╗ ██████╗ ██╗ ██████╗  //
@@ -26,7 +27,7 @@ module axi_mem_if_DP_hybr
     // ██║     ██║   ██║██║███╗██║    ██╔═══╝ ██╔══██╗██║██║   ██║ //
     // ███████╗╚██████╔╝╚███╔███╔╝    ██║     ██║  ██║██║╚██████╔╝ //
     // ╚══════╝ ╚═════╝  ╚══╝╚══╝     ╚═╝     ╚═╝  ╚═╝╚═╝ ╚═════╝  //
-    //-------------------------------------------------------------//                                                           
+    //-------------------------------------------------------------//
 
     // ---------------------------------------------------------
     // AXI TARG Port Declarations ------------------------------
@@ -216,6 +217,7 @@ module axi_mem_if_DP_hybr
     (
       .clk_i           ( ACLK        ),
       .rst_ni          ( ARESETn     ),
+      .test_en_i       ( test_en_i   ),
 
       .slave_valid_i   ( LP_AWVALID_i   ),
       .slave_addr_i    ( LP_AWADDR_i    ),
@@ -257,8 +259,9 @@ module axi_mem_if_DP_hybr
    )
    Slave_ar_buffer_LP
    (
-      .clk_i           ( ACLK       ),
-      .rst_ni          ( ARESETn    ),
+      .clk_i           ( ACLK          ),
+      .rst_ni          ( ARESETn       ),
+      .test_en_i       ( test_en_i     ),
 
       .slave_valid_i   ( LP_ARVALID_i  ),
       .slave_addr_i    ( LP_ARADDR_i   ),
@@ -298,8 +301,9 @@ module axi_mem_if_DP_hybr
    )
    Slave_w_buffer_LP
    (
-        .clk_i          ( ACLK     ),
-        .rst_ni         ( ARESETn  ),
+        .clk_i          ( ACLK        ),
+        .rst_ni         ( ARESETn     ),
+        .test_en_i      ( test_en_i   ),
 
         .slave_valid_i  ( LP_WVALID_i ),
         .slave_data_i   ( LP_WDATA_i  ),
@@ -325,8 +329,9 @@ module axi_mem_if_DP_hybr
    )
    Slave_r_buffer_LP
    (
-        .clk_i          ( ACLK       ),
-        .rst_ni         ( ARESETn    ),
+        .clk_i          ( ACLK          ),
+        .rst_ni         ( ARESETn       ),
+        .test_en_i      ( test_en_i     ),
 
         .slave_valid_i  ( LP_RVALID     ),
         .slave_data_i   ( LP_RDATA      ),
@@ -353,8 +358,9 @@ module axi_mem_if_DP_hybr
    )
    Slave_b_buffer_LP
    (
-        .clk_i          ( ACLK      ),
-        .rst_ni         ( ARESETn   ),
+        .clk_i          ( ACLK         ),
+        .rst_ni         ( ARESETn      ),
+        .test_en_i      ( test_en_i    ),
 
         .slave_valid_i  ( LP_BVALID    ),
         .slave_resp_i   ( LP_BRESP     ),

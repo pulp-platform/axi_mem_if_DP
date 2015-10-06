@@ -18,6 +18,7 @@ module axi_mem_if_DP
 (
     input logic                                     ACLK,
     input logic                                     ARESETn,
+    input logic                                     test_en_i,
 
     // ------------------------------------------------------------//
     // ██╗      ██████╗ ██╗    ██╗    ██████╗ ██████╗ ██╗ ██████╗  //
@@ -26,7 +27,7 @@ module axi_mem_if_DP
     // ██║     ██║   ██║██║███╗██║    ██╔═══╝ ██╔══██╗██║██║   ██║ //
     // ███████╗╚██████╔╝╚███╔███╔╝    ██║     ██║  ██║██║╚██████╔╝ //
     // ╚══════╝ ╚═════╝  ╚══╝╚══╝     ╚═╝     ╚═╝  ╚═╝╚═╝ ╚═════╝  //
-    //-------------------------------------------------------------//                                                           
+    //-------------------------------------------------------------//
 
     // ---------------------------------------------------------
     // AXI TARG Port Declarations ------------------------------
@@ -272,6 +273,7 @@ module axi_mem_if_DP
     (
       .clk_i           ( ACLK        ),
       .rst_ni          ( ARESETn     ),
+      .test_en_i       ( test_en_i   ),
 
       .slave_valid_i   ( LP_AWVALID_i   ),
       .slave_addr_i    ( LP_AWADDR_i    ),
@@ -315,6 +317,7 @@ module axi_mem_if_DP
    (
       .clk_i           ( ACLK       ),
       .rst_ni          ( ARESETn    ),
+      .test_en_i       ( test_en_i  ),
 
       .slave_valid_i   ( LP_ARVALID_i  ),
       .slave_addr_i    ( LP_ARADDR_i   ),
@@ -354,8 +357,9 @@ module axi_mem_if_DP
    )
    Slave_w_buffer_LP
    (
-        .clk_i          ( ACLK     ),
-        .rst_ni         ( ARESETn  ),
+        .clk_i          ( ACLK        ),
+        .rst_ni         ( ARESETn     ),
+        .test_en_i      ( test_en_i   ),
 
         .slave_valid_i  ( LP_WVALID_i ),
         .slave_data_i   ( LP_WDATA_i  ),
@@ -381,8 +385,9 @@ module axi_mem_if_DP
    )
    Slave_r_buffer_LP
    (
-        .clk_i          ( ACLK       ),
-        .rst_ni         ( ARESETn    ),
+        .clk_i          ( ACLK          ),
+        .rst_ni         ( ARESETn       ),
+        .test_en_i      ( test_en_i     ),
 
         .slave_valid_i  ( LP_RVALID     ),
         .slave_data_i   ( LP_RDATA      ),
@@ -409,8 +414,9 @@ module axi_mem_if_DP
    )
    Slave_b_buffer_LP
    (
-        .clk_i          ( ACLK      ),
-        .rst_ni         ( ARESETn   ),
+        .clk_i          ( ACLK         ),
+        .rst_ni         ( ARESETn      ),
+        .test_en_i      ( test_en_i    ),
 
         .slave_valid_i  ( LP_BVALID    ),
         .slave_resp_i   ( LP_BRESP     ),
@@ -452,8 +458,9 @@ module axi_mem_if_DP
    )
    Slave_aw_buffer_HP
    (
-      .clk_i           ( ACLK        ),
-      .rst_ni          ( ARESETn     ),
+      .clk_i           ( ACLK           ),
+      .rst_ni          ( ARESETn        ),
+      .test_en_i       ( test_en_i      ),
 
       .slave_valid_i   ( HP_AWVALID_i   ),
       .slave_addr_i    ( HP_AWADDR_i    ),
@@ -495,8 +502,9 @@ module axi_mem_if_DP
    )
    Slave_ar_buffer_HP
    (
-      .clk_i           ( ACLK       ),
-      .rst_ni          ( ARESETn    ),
+      .clk_i           ( ACLK          ),
+      .rst_ni          ( ARESETn       ),
+      .test_en_i       ( test_en_i     ),
 
       .slave_valid_i   ( HP_ARVALID_i  ),
       .slave_addr_i    ( HP_ARADDR_i   ),
@@ -536,8 +544,9 @@ module axi_mem_if_DP
    )
    Slave_w_buffer_HP
    (
-        .clk_i          ( ACLK     ),
-        .rst_ni         ( ARESETn  ),
+        .clk_i          ( ACLK        ),
+        .rst_ni         ( ARESETn     ),
+        .test_en_i      ( test_en_i   ),
 
         .slave_valid_i  ( HP_WVALID_i ),
         .slave_data_i   ( HP_WDATA_i  ),
@@ -563,8 +572,9 @@ module axi_mem_if_DP
    )
    Slave_r_buffer_HP
    (
-        .clk_i          ( ACLK       ),
-        .rst_ni         ( ARESETn    ),
+        .clk_i          ( ACLK          ),
+        .rst_ni         ( ARESETn       ),
+        .test_en_i      ( test_en_i     ),
 
         .slave_valid_i  ( HP_RVALID     ),
         .slave_data_i   ( HP_RDATA      ),
@@ -591,8 +601,9 @@ module axi_mem_if_DP
    )
    Slave_b_buffer_HP
    (
-        .clk_i          ( ACLK      ),
-        .rst_ni         ( ARESETn   ),
+        .clk_i          ( ACLK         ),
+        .rst_ni         ( ARESETn      ),
+        .test_en_i      ( test_en_i    ),
 
         .slave_valid_i  ( HP_BVALID    ),
         .slave_resp_i   ( HP_BRESP     ),

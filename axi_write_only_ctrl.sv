@@ -190,7 +190,7 @@ module axi_write_only_ctrl
                 WREADY_o  = grant_i;
                 valid_o   = WVALID_i;
                 MEM_CEN_o = ~(WVALID_i & grant_i);
-                MEM_A_o   = AWADDR_REG;
+                MEM_A_o   = AWADDR_REG+CountBurst_CS;
 
 
 
@@ -205,7 +205,6 @@ module axi_write_only_ctrl
                     begin // WRITE!!!!
                         NS = BURST;
                         CountBurst_NS = CountBurst_CS + 1;
-                        MEM_A_o   = AWADDR_REG + CountBurst_CS;
                     end
 
                 end

@@ -233,6 +233,8 @@ module axi_read_only_ctrl
                 begin
                         ARREADY_o = grant_i;
                         valid_o = ARVALID_i;
+                        MEM_CEN_o = ~ARVALID_i;
+
                         /////////////////////////////////////////
                         if(ARVALID_i)
                         begin

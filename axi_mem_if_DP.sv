@@ -247,9 +247,8 @@ module axi_mem_if_DP
   logic                         HP_W_cen    , HP_R_cen    , LP_W_cen    , LP_R_cen    , LP_cen    , HP_cen    ;
   logic                         HP_W_wen    , HP_R_wen    , LP_W_wen    , LP_R_wen    , LP_wen    , HP_wen    ;
   logic [MEM_ADDR_WIDTH-1:0]    HP_W_addr   , HP_R_addr   , LP_W_addr   , LP_R_addr   , LP_addr   , HP_addr   ;
-  logic [AXI4_WDATA_WIDTH-1:0]  HP_W_wdata  , HP_R_wdata  , LP_W_wdata  , LP_R_wdata  , LP_wdata  , HP_wdata  ;
-  logic [AXI_NUMBYTES-1:0]      HP_W_be     , HP_R_be     , LP_W_be     , LP_R_be     , LP_be     , HP_be     ;
-  logic [AXI_NUMBYTES-1:0]      HP_W_rdata  , HP_R_rdata  , LP_W_rdata  , LP_R_rdata  , LP_rdata  , HP_rdata  ;
+  logic [AXI4_WDATA_WIDTH-1:0]  LP_wdata  , HP_wdata  ;
+  logic [AXI_NUMBYTES-1:0]      LP_be     , HP_be     ;
 
 
 
@@ -679,8 +678,8 @@ W_CTRL_HP
     .MEM_CEN_o      (  HP_W_cen      ),
     .MEM_WEN_o      (  HP_W_wen      ),
     .MEM_A_o        (  HP_W_addr     ),
-    .MEM_D_o        (  HP_W_wdata    ),
-    .MEM_BE_o       (  HP_W_be       ),
+    .MEM_D_o        (  HP_wdata      ),
+    .MEM_BE_o       (  HP_be         ),
     .MEM_Q_i        (  '0            ),
 
     .grant_i        (  grant_W_HP   ),
@@ -731,8 +730,8 @@ R_CTRL_HP
     .MEM_CEN_o      (  HP_R_cen     ),
     .MEM_WEN_o      (  HP_R_wen     ),
     .MEM_A_o        (  HP_R_addr    ),
-    .MEM_D_o        (  HP_R_wdata   ),
-    .MEM_BE_o       (  HP_R_be      ),
+    .MEM_D_o        (               ),
+    .MEM_BE_o       (               ),
     .MEM_Q_i        (  Q            ),
 
     .grant_i        (  grant_R_HP   ),
@@ -796,8 +795,8 @@ W_CTRL_LP
     .MEM_CEN_o      (  LP_W_cen      ),
     .MEM_WEN_o      (  LP_W_wen      ),
     .MEM_A_o        (  LP_W_addr     ),
-    .MEM_D_o        (  LP_W_wdata    ),
-    .MEM_BE_o       (  LP_W_be       ),
+    .MEM_D_o        (  LP_wdata      ),
+    .MEM_BE_o       (  LP_be         ),
     .MEM_Q_i        (  '0            ),
 
     .grant_i        (  grant_W_LP   ),
@@ -848,8 +847,8 @@ R_CTRL_LP
     .MEM_CEN_o      (  LP_R_cen     ),
     .MEM_WEN_o      (  LP_R_wen     ),
     .MEM_A_o        (  LP_R_addr    ),
-    .MEM_D_o        (  LP_R_wdata   ),
-    .MEM_BE_o       (  LP_R_be      ),
+    .MEM_D_o        (               ),
+    .MEM_BE_o       (               ),
     .MEM_Q_i        (      Q        ),
 
     .grant_i        (  grant_R_LP   ),
@@ -868,16 +867,12 @@ begin : _MUX_MEM_
     HP_cen   = HP_R_cen   ;
     HP_wen   = 1'b1       ;
     HP_addr  = HP_R_addr  ;
-    HP_wdata = HP_R_wdata ;
-    HP_be    = HP_R_be    ;
   end
   else
   begin
     HP_cen   = HP_W_cen   ;
     HP_wen   = 1'b0       ;
     HP_addr  = HP_W_addr  ;
-    HP_wdata = HP_W_wdata ;
-    HP_be    = HP_W_be    ;
   end
 
 
@@ -886,17 +881,14 @@ begin : _MUX_MEM_
     LP_cen   = LP_R_cen   ;
     LP_wen   = 1'b1       ;
     LP_addr  = LP_R_addr  ;
-    LP_wdata = LP_R_wdata ;
-    LP_be    = LP_R_be    ;
   end
   else
   begin
     LP_cen   = LP_W_cen   ;
     LP_wen   = 1'b0       ;
     LP_addr  = LP_W_addr  ;
-    LP_wdata = LP_W_wdata ;
-    LP_be    = LP_W_be    ;
   end
+
 
   if( (valid_R_HP | valid_W_HP) & main_grant_HP ) 
   begin

@@ -1,11 +1,18 @@
-// `timescale 1ns/1ps
-// `define SOD 0.5
+// Copyright 2015 ETH Zurich and University of Bologna.
+// Copyright and related rights are licensed under the Solderpad Hardware
+// License, Version 0.51 (the “License”); you may not use this file except in
+// compliance with the License.  You may obtain a copy of the License at
+// http://solderpad.org/licenses/SHL-0.51. Unless required by applicable law
+// or agreed to in writing, software, hardware and materials distributed under
+// this License is distributed on an “AS IS” BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
+// specific language governing permissions and limitations under the License.
 
 `define HP 1'b1
 `define LP 1'b0
 
 module axi_mem_if_DP_hybr
-#( 
+#(
     parameter AXI4_ADDRESS_WIDTH = 32,
     parameter AXI4_RDATA_WIDTH   = 64,
     parameter AXI4_WDATA_WIDTH   = 64,
@@ -100,12 +107,12 @@ module axi_mem_if_DP_hybr
     // ╚═╝  ╚═╝╚═╝    ╚═╝     ╚═╝  ╚═╝╚═╝ ╚═════╝              //
     //---------------------------------------------------------//
 
-    input  logic                                  HP_cen_i    , 
-    input  logic                                  HP_wen_i    , 
-    input  logic  [MEM_ADDR_WIDTH-1:0]            HP_addr_i   , 
-    input  logic  [AXI4_WDATA_WIDTH-1:0]          HP_wdata_i  , 
-    input  logic  [AXI_NUMBYTES-1:0]              HP_be_i     ,  
-    output logic  [AXI4_RDATA_WIDTH-1:0]          HP_Q_o      ,                                
+    input  logic                                  HP_cen_i    ,
+    input  logic                                  HP_wen_i    ,
+    input  logic  [MEM_ADDR_WIDTH-1:0]            HP_addr_i   ,
+    input  logic  [AXI4_WDATA_WIDTH-1:0]          HP_wdata_i  ,
+    input  logic  [AXI_NUMBYTES-1:0]              HP_be_i     ,
+    output logic  [AXI4_RDATA_WIDTH-1:0]          HP_Q_o      ,
 
 
     output logic                                    CEN        ,
@@ -204,7 +211,7 @@ module axi_mem_if_DP_hybr
     // ██║     ██║   ██║██║███╗██║    ██╔═══╝ ██╔══██╗██║██║   ██║ //
     // ███████╗╚██████╔╝╚███╔███╔╝    ██║     ██║  ██║██║╚██████╔╝ //
     // ╚══════╝ ╚═════╝  ╚══╝╚══╝     ╚═╝     ╚═╝  ╚═╝╚═╝ ╚═════╝  //
-    //-------------------------------------------------------------//      
+    //-------------------------------------------------------------//
     // AXI WRITE ADDRESS CHANNEL BUFFER
     axi_aw_buffer
     #(
@@ -381,7 +388,7 @@ module axi_mem_if_DP_hybr
 
 
 // Low Priority Write FSM
-axi_write_only_ctrl 
+axi_write_only_ctrl
 #(
     .AXI4_ADDRESS_WIDTH ( AXI4_ADDRESS_WIDTH  ),
     .AXI4_RDATA_WIDTH   ( AXI4_RDATA_WIDTH    ),
@@ -440,7 +447,7 @@ W_CTRL_LP
 
 
 
-always_comb 
+always_comb
 begin : _MUX_MEM_
 
 
@@ -461,20 +468,20 @@ begin : _MUX_MEM_
     LP_be    = LP_W_be    ;
   end
 
-  if( HP_cen_i  ) 
+  if( HP_cen_i  )
   begin
-    CEN = HP_cen_i    ; 
-    WEN = HP_wen_i    ; 
-    A   = HP_addr_i   ; 
-    D   = HP_wdata_i  ; 
-    BE  = HP_be_i     ;  
+    CEN = HP_cen_i    ;
+    WEN = HP_wen_i    ;
+    A   = HP_addr_i   ;
+    D   = HP_wdata_i  ;
+    BE  = HP_be_i     ;
   end
   else
   begin
-    CEN = LP_cen   ; 
-    WEN = LP_wen   ; 
-    A   = LP_addr  ; 
-    D   = LP_wdata ; 
+    CEN = LP_cen   ;
+    WEN = LP_wen   ;
+    A   = LP_addr  ;
+    D   = LP_wdata ;
     BE  = LP_be    ;
   end
 end
@@ -482,12 +489,12 @@ end
 
 
 
-always_ff @(posedge ACLK or negedge ARESETn) 
+always_ff @(posedge ACLK or negedge ARESETn)
 begin
   if(~ARESETn) begin
      RR_FLAG_LP <= 0;
-  end 
-  else 
+  end
+  else
   begin
       RR_FLAG_LP  <= ~RR_FLAG_LP;
   end
@@ -503,12 +510,12 @@ begin
   grant_W_LP = 1'b0;
 
   case (RR_FLAG_LP)
-  
+
   1'b0: //Priority on Write
   begin
     if(valid_W_LP)
       grant_W_LP = main_grant_LP;
-    else 
+    else
       grant_R_LP = main_grant_LP;
   end
 
@@ -517,7 +524,7 @@ begin
   begin
     if(valid_R_LP)
       grant_R_LP = main_grant_LP;
-    else 
+    else
       grant_W_LP = main_grant_LP;
   end
   endcase

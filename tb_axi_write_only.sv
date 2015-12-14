@@ -1,3 +1,13 @@
+// Copyright 2015 ETH Zurich and University of Bologna.
+// Copyright and related rights are licensed under the Solderpad Hardware
+// License, Version 0.51 (the “License”); you may not use this file except in
+// compliance with the License.  You may obtain a copy of the License at
+// http://solderpad.org/licenses/SHL-0.51. Unless required by applicable law
+// or agreed to in writing, software, hardware and materials distributed under
+// this License is distributed on an “AS IS” BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
+// specific language governing permissions and limitations under the License.
+
 `timescale 1ns/1ps
 `define CLK_PERIOD 1.0
 
@@ -12,8 +22,8 @@ module tb_axi_write_only();
     parameter MEM_ADDR_WIDTH     = 16;
 
 
-    logic                            clk       ;
-    logic                            rst_n     ;
+    logic                            clk      ;
+    logic                            rst_n    ;
 
     logic [AXI4_ID_WIDTH-1:0]        AWID     ;
     logic [AXI4_ADDRESS_WIDTH-1:0]   AWADDR   ;
@@ -53,7 +63,7 @@ module tb_axi_write_only();
     logic                            valid    ;
     logic [31:0]                     temp_address;
     logic [7:0]                      temp_len;
-    
+
     logic [255:0] [AXI4_WDATA_WIDTH-1:0]   temp_wdata;
     logic [255:0] [AXI_NUMBYTES-1:0]       temp_be;
 
@@ -62,15 +72,15 @@ module tb_axi_write_only();
 
 
 
-    typedef struct { 
-        logic [AXI4_ADDRESS_WIDTH-1:0]  address; 
-        logic [7:0]                     len; 
+    typedef struct {
+        logic [AXI4_ADDRESS_WIDTH-1:0]  address;
+        logic [7:0]                     len;
         logic [AXI4_ID_WIDTH-1:0]       id;
     } PACKET_type;
 
 
-    PACKET_type PACKET_QUEUE[$]; 
-    PACKET_type PACKET_IN, PACKET_OUT; 
+    PACKET_type PACKET_QUEUE[$];
+    PACKET_type PACKET_IN, PACKET_OUT;
 
 
 
@@ -78,7 +88,7 @@ module tb_axi_write_only();
     event grant_w_event;
     event grant_b_event;
 
-    always  @(posedge clk ) 
+    always  @(posedge clk )
     begin
         grant  <= $random%2;
         BREADY <=  $random%2;
@@ -92,10 +102,10 @@ module tb_axi_write_only();
         if(BVALID & BREADY)
             -> grant_b_event;
 
-    end  
+    end
 
 
-    always 
+    always
     begin
         #(`CLK_PERIOD);
         clk = ~clk;
@@ -130,7 +140,7 @@ module tb_axi_write_only();
                 temp_wdata[i] = { temp_address ,32'hCAFE0000 + i*8};
                 temp_be[i]    = '1;
             end
-            
+
             PACKET_IN.address    = temp_address;
             PACKET_IN.len        = temp_len;
             PACKET_IN.id         = temp_id;
@@ -173,7 +183,7 @@ begin
 
 end
 
-axi_write_only_ctrl 
+axi_write_only_ctrl
 #(
     .AXI4_ADDRESS_WIDTH ( AXI4_ADDRESS_WIDTH  ),
     .AXI4_RDATA_WIDTH   ( AXI4_RDATA_WIDTH    ),
@@ -217,7 +227,7 @@ DUT
     .BUSER_o        (  BUSER      ),
     .BREADY_i       (  BREADY     ),
 
-                       
+
     .MEM_CEN_o      (  MEM_CEN   ),
     .MEM_WEN_o      (  MEM_WEN   ),
     .MEM_A_o        (  MEM_A     ),
@@ -305,7 +315,7 @@ DUT
             AWCACHE     <= '0;
             AWQOS       <= '0;
             AWID        <= '0;
-            AWUSER      <= '0;       
+            AWUSER      <= '0;
         end
     endtask
 
@@ -328,10 +338,10 @@ DUT
     input logic [255:0] [AXI_NUMBYTES-1:0]          be;
     input logic [AXI4_USER_WIDTH-1:0]               user;
     begin
-        for (int index = 0; index <= len; index++) 
+        for (int index = 0; index <= len; index++)
         begin
             WDATA       <= wdata[index];
-            WSTRB       <= be[index]; 
+            WSTRB       <= be[index];
             WVALID      <= '1;
             WUSER       <= user;
 
@@ -379,28 +389,28 @@ module generic_memory
 );
 
    localparam   NUM_WORDS = 2**ADDR_WIDTH;
-   
-   logic [BE_WIDTH-1:0][7:0]            MEM [NUM_WORDS-1:0];
-   
 
-   always_ff @(posedge CLK or negedge INITN) 
+   logic [BE_WIDTH-1:0][7:0]            MEM [NUM_WORDS-1:0];
+
+
+   always_ff @(posedge CLK or negedge INITN)
    begin : proc_mem
-       if(~INITN) 
+       if(~INITN)
        begin
-            for (int i = 0; i < NUM_WORDS; i++) 
+            for (int i = 0; i < NUM_WORDS; i++)
             begin
                 MEM[i] <= i*8;
             end
-       end 
-       else 
+       end
+       else
        begin
            if(CEN == 1'b0)
            begin
-                if(WEN == 1'b0) 
+                if(WEN == 1'b0)
                 begin
-                    for (int j = 0; j < BE_WIDTH; j++) 
+                    for (int j = 0; j < BE_WIDTH; j++)
                     begin
-                        if(BE[j]) 
+                        if(BE[j])
                         begin
                             MEM[A][j] <= D[j];
                         end
@@ -418,5 +428,5 @@ module generic_memory
            end
        end
    end
-   
+
 endmodule

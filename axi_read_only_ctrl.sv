@@ -1,11 +1,19 @@
+// Copyright 2015 ETH Zurich and University of Bologna.
+// Copyright and related rights are licensed under the Solderpad Hardware
+// License, Version 0.51 (the “License”); you may not use this file except in
+// compliance with the License.  You may obtain a copy of the License at
+// http://solderpad.org/licenses/SHL-0.51. Unless required by applicable law
+// or agreed to in writing, software, hardware and materials distributed under
+// this License is distributed on an “AS IS” BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
+// specific language governing permissions and limitations under the License.
 
 `define OKAY   2'b00
 `define EXOKAY 2'b01
 `define SLVERR 2'b10
 `define DECERR 2'b11
 
-
-module axi_read_only_ctrl 
+module axi_read_only_ctrl
 #(
     parameter AXI4_ADDRESS_WIDTH = 32,
     parameter AXI4_RDATA_WIDTH   = 64,
@@ -16,7 +24,7 @@ module axi_read_only_ctrl
     parameter MEM_ADDR_WIDTH     = 13
 )
 (
-	input logic                                     clk,
+    input logic                                     clk,
     input logic                                     rst_n,
 
     //AXI read address bus -------------------------------------
@@ -52,7 +60,7 @@ module axi_read_only_ctrl
     output logic  [AXI_NUMBYTES-1:0]                MEM_BE_o       ,
     input  logic  [AXI4_RDATA_WIDTH-1:0]            MEM_Q_i        ,
 
-    input   logic 									grant_i,
+    input   logic                                   grant_i,
     output  logic                                   valid_o
 );
 
@@ -73,10 +81,10 @@ module axi_read_only_ctrl
     assign MEM_BE_o = '0;
 
 
-    always_ff @(posedge clk or negedge rst_n) 
+    always_ff @(posedge clk or negedge rst_n)
     begin : _UPDATE_CS_
-    	if(~rst_n) 
-    	begin		
+        if(~rst_n)
+        begin
             CS         <= IDLE;
             CountBurst_CS <= '0;
 
@@ -85,10 +93,10 @@ module axi_read_only_ctrl
             RUSER_REG   <= '0;
             ARADDR_REG  <= '0;
             ARLEN_REG   <= '0;
-    	end 
-    	else 
-    	begin
-    		CS <= NS;
+        end
+        else
+        begin
+            CS <= NS;
             CountBurst_CS <= CountBurst_NS;
 
             if(sample_ctrl)
@@ -102,11 +110,11 @@ module axi_read_only_ctrl
             if(sample_rdata)
                 RDATA_REG <= MEM_Q_i;
 
-    	end
+        end
     end
 
 
-    always_comb 
+    always_comb
     begin : COMPUTE_NS
         ARREADY_o = 1'b0;
 
@@ -117,22 +125,22 @@ module axi_read_only_ctrl
         RLAST_o  = 1'b0;
         RRESP_o  = `OKAY;
 
-        
+
         MEM_CEN_o = 1'b1;
         MEM_WEN_o = 1'b1;
         MEM_A_o   = ARADDR_i[MEM_ADDR_WIDTH+OFFSET_BIT-1 : OFFSET_BIT];
 
         valid_o   = 1'b0;
-        
+
         sample_rdata = 1'b0;
         sample_ctrl  = 1'b0;
 
         CountBurst_NS = CountBurst_CS;
 
-    	case (CS)
-    		
-    		IDLE :
-    		begin
+        case (CS)
+
+            IDLE :
+            begin
                 valid_o   = ARVALID_i;
                 MEM_CEN_o = ~ARVALID_i;
 
@@ -168,9 +176,9 @@ module axi_read_only_ctrl
                     NS = IDLE;
                 end
 
-    		end
+            end
 
-            SINGLE_R: 
+            SINGLE_R:
             begin
                 sample_rdata = 1'b1;
                 RDATA_o  = MEM_Q_i;
@@ -227,7 +235,7 @@ module axi_read_only_ctrl
                 RVALID_o = 1'b1;
                 RLAST_o  = 1'b1;
                 RRESP_o  = `OKAY;
-                
+
 
                 if(RREADY_i)
                 begin
@@ -274,7 +282,7 @@ module axi_read_only_ctrl
             end //~WAIT_RREADY
 
 
-            BURST_R: 
+            BURST_R:
             begin
                 sample_rdata = 1'b1;
                 RDATA_o  = MEM_Q_i;
@@ -325,7 +333,7 @@ module axi_read_only_ctrl
                 MEM_A_o     = ARADDR_REG+CountBurst_CS;
                 valid_o     = 1'b1;
 
-                if(grant_i) 
+                if(grant_i)
                 begin
                     if(CountBurst_CS == ARLEN_REG)
                     begin
@@ -353,7 +361,7 @@ module axi_read_only_ctrl
                 RVALID_o = 1'b1;
                 RLAST_o  = 1'b0;
                 RRESP_o  = `OKAY;
-                
+
 
                 if(RREADY_i)
                 begin
@@ -365,7 +373,7 @@ module axi_read_only_ctrl
                         begin
                             CountBurst_NS = CountBurst_CS + 1 ;
 
-                            if(CountBurst_CS == ARLEN_REG ) 
+                            if(CountBurst_CS == ARLEN_REG )
                             begin
                                 NS = LAST_BURST_R;
                             end
@@ -387,7 +395,7 @@ module axi_read_only_ctrl
             end //~WAIT_BURST_RREADY
 
 
-            LAST_BURST_R: 
+            LAST_BURST_R:
             begin
                 RVALID_o = 1'b1;
                 RLAST_o  = 1'b1;
@@ -498,11 +506,11 @@ module axi_read_only_ctrl
 
 
 
-    		default :
-    		begin
+            default :
+            begin
                 NS = IDLE;
-    		end
-    	endcase // CS
+            end
+        endcase // CS
 
     end
 

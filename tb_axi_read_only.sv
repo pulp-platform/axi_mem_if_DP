@@ -1,3 +1,13 @@
+// Copyright 2015 ETH Zurich and University of Bologna.
+// Copyright and related rights are licensed under the Solderpad Hardware
+// License, Version 0.51 (the “License”); you may not use this file except in
+// compliance with the License.  You may obtain a copy of the License at
+// http://solderpad.org/licenses/SHL-0.51. Unless required by applicable law
+// or agreed to in writing, software, hardware and materials distributed under
+// this License is distributed on an “AS IS” BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
+// specific language governing permissions and limitations under the License.
+
 `timescale 1ns/1ps
 `define CLK_PERIOD 1.0
 
@@ -12,8 +22,8 @@ module tb_axi_read_only();
     parameter MEM_ADDR_WIDTH     = 16;
 
 
-    logic                            clk       ;
-    logic                            rst_n     ;
+    logic                            clk      ;
+    logic                            rst_n    ;
 
     logic [AXI4_ID_WIDTH-1:0]        ARID     ;
     logic [AXI4_ADDRESS_WIDTH-1:0]   ARADDR   ;
@@ -54,31 +64,31 @@ module tb_axi_read_only();
 
 
 
-    typedef struct { 
-        logic [AXI4_ADDRESS_WIDTH-1:0]  address; 
-        logic [7:0]                     len; 
+    typedef struct {
+        logic [AXI4_ADDRESS_WIDTH-1:0]  address;
+        logic [7:0]                     len;
         logic [AXI4_ID_WIDTH-1:0]       id;
     } PACKET_type;
 
 
-    PACKET_type PACKET_QUEUE[$]; 
-    PACKET_type PACKET_IN, PACKET_OUT; 
+    PACKET_type PACKET_QUEUE[$];
+    PACKET_type PACKET_IN, PACKET_OUT;
 
 
 
     event grant_ar_event;
 
-    always  @(posedge clk ) 
+    always  @(posedge clk )
     begin
         grant <= $random%2;
         RREADY <=  $random%2;
 
         if(ARVALID & ARREADY)
             -> grant_ar_event;
-    end  
+    end
 
 
-    always 
+    always
     begin
         #(`CLK_PERIOD);
         clk = ~clk;
@@ -108,7 +118,7 @@ module tb_axi_read_only();
             temp_address[31:16]  = '0;
             temp_len             = $random;
             temp_id              = temp_id + 1'b1;
-            
+
             PACKET_IN.address    = temp_address;
             PACKET_IN.len        = temp_len;
             PACKET_IN.id         = temp_id;
@@ -137,13 +147,13 @@ module tb_axi_read_only();
                     PACKET_OUT = PACKET_QUEUE.pop_back();
                     Pop_Packet = 1'b0;
                 end
-            end  
+            end
         end
 
         if(clk)
         begin
             if(RREADY & RVALID)
-            begin 
+            begin
 
 
 
@@ -153,7 +163,7 @@ module tb_axi_read_only();
                     $stop;
                 end
 
-                 
+
                 if(RLAST)
                 begin
                     if(counter != PACKET_OUT.len)
@@ -170,7 +180,7 @@ module tb_axi_read_only();
                     counter =counter + 1;
                 end
 
-                   
+
             end
         end
 
@@ -191,7 +201,7 @@ begin
     end
 end
 
-axi_read_only_ctrl 
+axi_read_only_ctrl
 #(
     .AXI4_ADDRESS_WIDTH ( AXI4_ADDRESS_WIDTH  ),
     .AXI4_RDATA_WIDTH   ( AXI4_RDATA_WIDTH    ),
@@ -227,7 +237,7 @@ DUT
     .RUSER_o        (  RUSER     ),
     .RVALID_o       (  RVALID    ),
     .RREADY_i       (  RREADY    ),
-                       
+
     .MEM_CEN_o      (  MEM_CEN   ),
     .MEM_WEN_o      (  MEM_WEN   ),
     .MEM_A_o        (  MEM_A     ),
@@ -315,7 +325,7 @@ DUT
             ARCACHE     <= '0;
             ARQOS       <= '0;
             ARID        <= '0;
-            ARUSER      <= '0;       
+            ARUSER      <= '0;
         end
     endtask
 
@@ -347,28 +357,28 @@ module generic_memory
 );
 
    localparam   NUM_WORDS = 2**ADDR_WIDTH;
-   
-   logic [BE_WIDTH-1:0][7:0]            MEM [NUM_WORDS-1:0];
-   
 
-   always_ff @(posedge CLK or negedge INITN) 
+   logic [BE_WIDTH-1:0][7:0]            MEM [NUM_WORDS-1:0];
+
+
+   always_ff @(posedge CLK or negedge INITN)
    begin : proc_mem
-       if(~INITN) 
+       if(~INITN)
        begin
-            for (int i = 0; i < NUM_WORDS; i++) 
+            for (int i = 0; i < NUM_WORDS; i++)
             begin
                 MEM[i] <= i*8;
             end
-       end 
-       else 
+       end
+       else
        begin
            if(CEN == 1'b0)
            begin
-                if(WEN == 1'b0) 
+                if(WEN == 1'b0)
                 begin
-                    for (int j = 0; j < BE_WIDTH; j++) 
+                    for (int j = 0; j < BE_WIDTH; j++)
                     begin
-                        if(BE[j]) 
+                        if(BE[j])
                         begin
                             MEM[A][j] <= D[j];
                         end
@@ -386,5 +396,5 @@ module generic_memory
            end
        end
    end
-   
+
 endmodule

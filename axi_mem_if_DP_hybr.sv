@@ -446,6 +446,56 @@ W_CTRL_LP
 
 
 
+axi_read_only_ctrl
+#(
+    .AXI4_ADDRESS_WIDTH ( AXI4_ADDRESS_WIDTH  ),
+    .AXI4_RDATA_WIDTH   ( AXI4_RDATA_WIDTH    ),
+    .AXI4_WDATA_WIDTH   ( AXI4_WDATA_WIDTH    ),
+    .AXI4_ID_WIDTH      ( AXI4_ID_WIDTH       ),
+    .AXI4_USER_WIDTH    ( AXI4_USER_WIDTH     ),
+    .AXI_NUMBYTES       ( AXI_NUMBYTES        ),
+    .MEM_ADDR_WIDTH     ( MEM_ADDR_WIDTH      )
+)
+R_CTRL_LP
+(
+    .clk            (  ACLK       ),
+    .rst_n          (  ARESETn     ),
+
+    .ARID_i         (  LP_ARID      ),
+    .ARADDR_i       (  LP_ARADDR    ),
+    .ARLEN_i        (  LP_ARLEN     ),
+    .ARSIZE_i       (  LP_ARSIZE    ),
+    .ARBURST_i      (  LP_ARBURST   ),
+    .ARLOCK_i       (  LP_ARLOCK    ),
+    .ARCACHE_i      (  LP_ARCACHE   ),
+    .ARPROT_i       (  LP_ARPROT    ),
+    .ARREGION_i     (  LP_ARREGION  ),
+    .ARUSER_i       (  LP_ARUSER    ),
+    .ARQOS_i        (  LP_ARQOS     ),
+    .ARVALID_i      (  LP_ARVALID   ),
+    .ARREADY_o      (  LP_ARREADY   ),
+
+    .RID_o          (  LP_RID       ),
+    .RDATA_o        (  LP_RDATA     ),
+    .RRESP_o        (  LP_RRESP     ),
+    .RLAST_o        (  LP_RLAST     ),
+    .RUSER_o        (  LP_RUSER     ),
+    .RVALID_o       (  LP_RVALID    ),
+    .RREADY_i       (  LP_RREADY    ),
+
+    .MEM_CEN_o      (  LP_R_cen     ),
+    .MEM_WEN_o      (  LP_R_wen     ),
+    .MEM_A_o        (  LP_R_addr    ),
+    .MEM_D_o        (               ),
+    .MEM_BE_o       (               ),
+    .MEM_Q_i        (      Q        ),
+
+    .grant_i        (  grant_R_LP   ),
+    .valid_o        (  valid_R_LP   )
+);
+
+
+
 
 always_comb
 begin : _MUX_MEM_
@@ -468,7 +518,7 @@ begin : _MUX_MEM_
     LP_be    = LP_W_be    ;
   end
 
-  if( HP_cen_i  )
+  if( HP_cen_i == 1'b0 )
   begin
     CEN = HP_cen_i    ;
     WEN = HP_wen_i    ;

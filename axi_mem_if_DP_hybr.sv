@@ -439,7 +439,7 @@ W_CTRL_LP
     .MEM_BE_o       (  LP_W_be       ),
     .MEM_Q_i        (  '0            ),
 
-    .grant_i        (  grant_W_LP   ),
+    .grant_i        (  grant_W_LP & HP_cen_i ),
     .valid_o        (  valid_W_LP   )
 );
 
@@ -490,33 +490,15 @@ R_CTRL_LP
     .MEM_BE_o       (               ),
     .MEM_Q_i        (      Q        ),
 
-    .grant_i        (  grant_R_LP   ),
+    .grant_i        (  grant_R_LP  & HP_cen_i ),
     .valid_o        (  valid_R_LP   )
 );
 
-
-
+assign LP_wdata = LP_W_wdata ;
+assign LP_be    = LP_W_be;
 
 always_comb
 begin : _MUX_MEM_
-
-
-  if(valid_R_LP & grant_R_LP)
-  begin
-    LP_cen   = LP_R_cen   ;
-    LP_wen   = 1'b1       ;
-    LP_addr  = LP_R_addr  ;
-    LP_wdata = LP_R_wdata ;
-    LP_be    = LP_R_be    ;
-  end
-  else
-  begin
-    LP_cen   = LP_W_cen   ;
-    LP_wen   = 1'b0       ;
-    LP_addr  = LP_W_addr  ;
-    LP_wdata = LP_W_wdata ;
-    LP_be    = LP_W_be    ;
-  end
 
   if( HP_cen_i == 1'b0 )
   begin
@@ -528,11 +510,25 @@ begin : _MUX_MEM_
   end
   else
   begin
-    CEN = LP_cen   ;
-    WEN = LP_wen   ;
-    A   = LP_addr  ;
-    D   = LP_wdata ;
-    BE  = LP_be    ;
+
+      if(grant_R_LP)
+      begin
+        LP_cen   = LP_R_cen   ;
+        LP_wen   = 1'b1       ;
+        LP_addr  = LP_R_addr  ;
+      end
+      else
+      begin
+        LP_cen   = LP_W_cen   ;
+        LP_wen   = ~grant_W_LP       ;
+        LP_addr  = LP_W_addr  ;
+      end
+  
+        CEN = LP_cen   ;
+        WEN = LP_wen   ;
+        A   = LP_addr  ;
+        D   = LP_W_wdata ;
+        BE  = LP_W_be    ;
   end
 end
 
@@ -564,18 +560,18 @@ begin
   1'b0: //Priority on Write
   begin
     if(valid_W_LP)
-      grant_W_LP = main_grant_LP;
+      grant_W_LP = 1'b1;
     else
-      grant_R_LP = main_grant_LP;
+      grant_R_LP = 1'b1;
   end
 
 
   1'b1: //Priority on Read
   begin
     if(valid_R_LP)
-      grant_R_LP = main_grant_LP;
+      grant_R_LP = 1'b1;
     else
-      grant_W_LP = main_grant_LP;
+      grant_W_LP = 1'b1;
   end
   endcase
 end

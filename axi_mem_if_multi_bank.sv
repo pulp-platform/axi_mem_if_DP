@@ -110,7 +110,7 @@ module axi_mem_if_DP_multi_bank
 
     input  logic                                  HP_cen_i    ,
     input  logic                                  HP_wen_i    ,
-    input  logic  [MEM_ADDR_WIDTH-1:0]            HP_addr_i   ,
+    input  logic  [MEM_ADDR_WIDTH+$clog2(NB_L2_BANKS)-1:0]            HP_addr_i   ,
     input  logic  [AXI4_WDATA_WIDTH-1:0]          HP_wdata_i  ,
     input  logic  [AXI_NUMBYTES-1:0]              HP_be_i     ,
     output logic  [AXI4_RDATA_WIDTH-1:0]          HP_Q_o      ,
@@ -195,16 +195,16 @@ module axi_mem_if_DP_multi_bank
    logic grant_R_LP, grant_W_LP;
    logic RR_FLAG_LP;
 
-   logic                         LP_W_cen    , LP_R_cen    , LP_cen    ;
-   logic                         LP_W_wen    , LP_R_wen    , LP_wen    ;
-   logic [MEM_ADDR_WIDTH-1:0]    LP_W_addr   , LP_R_addr   , LP_addr   ;
-   logic [AXI4_WDATA_WIDTH-1:0]  LP_W_wdata  , LP_R_wdata  , LP_wdata  ;
-   logic [AXI_NUMBYTES-1:0]      LP_W_be     , LP_R_be     , LP_be     ;
-   logic [AXI4_WDATA_WIDTH-1:0]  LP_W_rdata  , LP_R_rdata  , LP_rdata  ;
+   logic                                             LP_W_cen    , LP_R_cen  ;
+   logic                                             LP_W_wen    , LP_R_wen  ;
+   logic [MEM_ADDR_WIDTH+$clog2(NB_L2_BANKS)-1:0]    LP_W_addr   , LP_R_addr ;
+   logic [AXI4_WDATA_WIDTH-1:0]                      LP_W_wdata  , LP_R_wdata;
+   logic [AXI_NUMBYTES-1:0]                          LP_W_be     , LP_R_be   ;
+   logic [AXI4_WDATA_WIDTH-1:0]                      LP_W_rdata  , LP_R_rdata;
 
    //Internal signals : --> IF BINDING to FC_TCDM_LINT
    logic [2:0]                                      req_int;
-   logic [2:0] [AXI4_ADDRESS_WIDTH-1:0]             add_int;
+   logic [2:0] [MEM_ADDR_WIDTH+3+$clog2(NB_L2_BANKS)-1:0]             add_int;
    logic [2:0]                                      wen_int;
    logic [2:0] [AXI4_WDATA_WIDTH-1:0]               wdata_int;
    logic [2:0] [AXI4_WDATA_WIDTH/8-1:0]             be_int;
@@ -413,7 +413,7 @@ module axi_mem_if_DP_multi_bank
        .AXI4_ID_WIDTH      ( AXI4_ID_WIDTH       ),
        .AXI4_USER_WIDTH    ( AXI4_USER_WIDTH     ),
        .AXI_NUMBYTES       ( AXI_NUMBYTES        ),
-       .MEM_ADDR_WIDTH     ( MEM_ADDR_WIDTH      )
+       .MEM_ADDR_WIDTH     ( MEM_ADDR_WIDTH+$clog2(NB_L2_BANKS)     )
    )
    W_CTRL_LP
    (
@@ -471,7 +471,7 @@ module axi_mem_if_DP_multi_bank
        .AXI4_ID_WIDTH      ( AXI4_ID_WIDTH       ),
        .AXI4_USER_WIDTH    ( AXI4_USER_WIDTH     ),
        .AXI_NUMBYTES       ( AXI_NUMBYTES        ),
-       .MEM_ADDR_WIDTH     ( MEM_ADDR_WIDTH      )
+       .MEM_ADDR_WIDTH     ( MEM_ADDR_WIDTH+$clog2(NB_L2_BANKS)      )
    )
    R_CTRL_LP
    (
@@ -517,7 +517,10 @@ module axi_mem_if_DP_multi_bank
    assign req_int   = {~HP_cen_i,    valid_R_LP,   valid_W_LP  };
    assign             {              grant_R_LP,   grant_W_LP  }  = gnt_int[1:0]; // grant 2 does not matter since is HIGH_PRIO channel
 
-   assign add_int   = { HP_addr_i,   LP_R_addr,                      LP_W_addr   };
+   assign add_int[0] = {LP_W_addr,3'b000}; // add because FC remove the OFFSET BITS
+   assign add_int[1] = {LP_R_addr,3'b000};
+   assign add_int[2] = {HP_addr_i,3'b000};
+
    assign wen_int   = { HP_wen_i,    1'b1,                           1'b0        };
    assign wdata_int = { HP_wdata_i,  {AXI4_WDATA_WIDTH{1'b0}},       LP_W_wdata  };
    assign be_int    = { HP_be_i,     {(AXI4_WDATA_WIDTH/8){1'b0}},   LP_W_be     };
@@ -531,14 +534,14 @@ module axi_mem_if_DP_multi_bank
    // CH1 --> {             , UDMA         } --> High Priority
    XBAR_TCDM_FC
    #(
-      .N_CH0          ( 2                  ),  //-->  CH0 for udma  and  CH1, CH2 for APB2MEM and Coredeumx respectively 
-      .N_CH1          ( 1                  ),  //--> no channel connected
-      .N_SLAVE        ( NB_L2_BANKS        ),
-      .ADDR_WIDTH     ( AXI4_ADDRESS_WIDTH ),
-      .DATA_WIDTH     ( AXI4_WDATA_WIDTH   ),
-      .ADDR_MEM_WIDTH ( MEM_ADDR_WIDTH     ),
-      .CH0_CH1_POLICY ( "FIX_PRIO"         ),
-      .PRIO_CH        ( 1                  )        
+      .N_CH0          ( 2                                    ),  //-->  CH0 for udma  and  CH1, CH2 for APB2MEM and Coredeumx respectively 
+      .N_CH1          ( 1                                    ),  //--> no channel connected
+      .N_SLAVE        ( NB_L2_BANKS                          ),
+      .ADDR_WIDTH     ( MEM_ADDR_WIDTH+3+$clog2(NB_L2_BANKS) ), // MEM_ADDR+OFFSET+INTERLEAVING ROUTING bits
+      .DATA_WIDTH     ( AXI4_WDATA_WIDTH                     ),
+      .ADDR_MEM_WIDTH ( MEM_ADDR_WIDTH                       ),
+      .CH0_CH1_POLICY ( "FIX_PRIO"                           ),
+      .PRIO_CH        ( 1                                    )        
    )
    L2_MB_INTERCO
    (

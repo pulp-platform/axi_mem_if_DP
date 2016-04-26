@@ -560,8 +560,8 @@ module axi_mem_if_DP_multi_bank
       .data_wdata_o    ( mem_wdata         ), 
       .data_be_o       ( mem_be            ), 
       .data_r_rdata_i  ( mem_rdata         ), 
-      .clk             ( clk               ),
-      .rst_n           ( rst_n             )
+      .clk             ( ACLK              ),
+      .rst_n           ( ARESETn           )
    );
 
    assign CEN = ~mem_req;

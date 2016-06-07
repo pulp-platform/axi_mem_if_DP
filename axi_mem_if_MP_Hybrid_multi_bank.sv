@@ -107,12 +107,14 @@ module axi_mem_if_MP_Hybrid_multi_bank
     // ██║     ██╔══██║ ██║
     // ╚██████╗██║  ██║ ██║
     //  ╚═════╝╚═╝  ╚═╝ ╚═╝
-    input  logic [N_CH1-1:0]                                             CH1_cen_i    ,
+    input  logic [N_CH1-1:0]                                             CH1_req_i    ,
+    output logic [N_CH1-1:0]                                             CH1_gnt_o    ,
     input  logic [N_CH1-1:0]                                             CH1_wen_i    ,
     input  logic [N_CH1-1:0] [MEM_ADDR_WIDTH+$clog2(NB_L2_BANKS)-1:0]    CH1_addr_i   ,
     input  logic [N_CH1-1:0] [AXI4_WDATA_WIDTH-1:0]                      CH1_wdata_i  ,
     input  logic [N_CH1-1:0] [AXI_NUMBYTES-1:0]                          CH1_be_i     ,
-    output logic [N_CH1-1:0] [AXI4_RDATA_WIDTH-1:0]                      CH1_Q_o      ,
+    output logic [N_CH1-1:0] [AXI4_RDATA_WIDTH-1:0]                      CH1_rdata_o  ,
+    output logic [N_CH1-1:0]                                             CH1_rvalid_o ,
 
 
     output logic [NB_L2_BANKS-1:0]                                       CEN,
@@ -193,7 +195,7 @@ module axi_mem_if_MP_Hybrid_multi_bank
    logic [N_CH0-1:0] valid_R_CH0, valid_W_CH0;
    logic [N_CH0-1:0] grant_R_CH0, grant_W_CH0;
 
-   logic [N_CH1-1:0] grant_CH1, valid_CH1;
+   logic [N_CH1-1:0] valid_CH1;
 
    logic [N_CH0-1:0]                                            CH0_W_cen    , CH0_R_cen  ;
    logic [N_CH0-1:0]                                            CH0_W_wen    , CH0_R_wen  ;
@@ -546,24 +548,20 @@ module axi_mem_if_MP_Hybrid_multi_bank
 
    for(i=0;i<N_CH1;i++)
    begin : BINDING_TCDM_IF
-      assign req_int[2*N_CH0+i]    = ~CH1_cen_i[i];
-      assign grant_CH1[i]          =  gnt_int[2*N_CH0+i];
+      assign req_int[2*N_CH0+i]    =  CH1_req_i[i];
+      assign CH1_gnt_o[i]          =  gnt_int[2*N_CH0+i];
       assign add_int[2*N_CH0+i]    = {CH1_addr_i[i],3'b000};
       assign wen_int[2*N_CH0+i]    =  CH1_wen_i[i];
       assign wdata_int[2*N_CH0+i]  =  CH1_wdata_i[i];
       assign be_int[2*N_CH0+i]     =  CH1_be_i[i];
 
-      assign CH1_Q_o[i]            = r_rdata_int[2*N_CH0+i];
+      assign CH1_rdata_o[i]        = r_rdata_int[2*N_CH0+i];
+      assign CH1_rvalid_o[i]       = r_valid_int[2*N_CH0+i];
    end
-
-
 
    //assign {r_valid_HP,   r_valid_W_LP,  r_valid_R_LP }  = r_valid_int;
    //assign {HP_Q_o, LP_R_rdata, LP_W_rdata} = r_rdata_int;
-
-
-
-
+   
  endgenerate
 
 

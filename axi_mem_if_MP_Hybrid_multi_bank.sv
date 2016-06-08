@@ -25,7 +25,7 @@ module axi_mem_if_MP_Hybrid_multi_bank
     parameter NB_L2_BANKS        = 4,
 
     parameter N_CH0              = 1,
-    parameter N_CH1              = 2
+    parameter N_CH1              = 3
 )
 (
     input logic                                     ACLK,
@@ -561,7 +561,7 @@ module axi_mem_if_MP_Hybrid_multi_bank
 
    //assign {r_valid_HP,   r_valid_W_LP,  r_valid_R_LP }  = r_valid_int;
    //assign {HP_Q_o, LP_R_rdata, LP_W_rdata} = r_rdata_int;
-   
+
  endgenerate
 
 
@@ -571,7 +571,7 @@ module axi_mem_if_MP_Hybrid_multi_bank
    // CH1 --> {  Icache     , UDMA         } --> 
    XBAR_TCDM_FC
    #(
-      .N_CH0          ( N_CH0                                ),  //-->  CH0 for udma  and  CH1, CH2 for APB2MEM and Coredeumx respectively 
+      .N_CH0          ( 2*N_CH0                              ),  //-->  AXI PORTS (sx beacuse we separate W and R channels)
       .N_CH1          ( N_CH1                                ),  //--> no channel connected
       .N_SLAVE        ( NB_L2_BANKS                          ),
       .ADDR_WIDTH     ( MEM_ADDR_WIDTH+3+$clog2(NB_L2_BANKS) ), // MEM_ADDR+OFFSET+INTERLEAVING ROUTING bits
